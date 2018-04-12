@@ -7,13 +7,16 @@
 void eraseSpaces(std::string& line);
 std::string derivative(std::string polynomial);
 void splitToItems(std::string polinom, std::map<int, int>& items);
+void incrementalDerivative(std::map<int, int>& items);
 std::pair<int, int> parseToPair(std::string item);
 std::string buildString(std::map<int, int>& items);
+std::string buildItem(const std::pair<int, int>& item);
 
 int main()
 {
     std::string line("-3*x^3 + x - 1");
     eraseSpaces(line);
+    std::cout << "Polinom: " << line << std::endl;
     std::cout << derivative(line) << std::endl;
 }
 
@@ -24,7 +27,8 @@ void eraseSpaces(std::string& line) {
 std::string derivative(std::string polynomial) {
     std::map<int, int> items;
     splitToItems(polynomial, items);
-    return (std::string)"";
+    incrementalDerivative(items);
+    return buildString(items);
 }
 
 void splitToItems(std::string polinom, std::map<int, int>& items) {
@@ -43,7 +47,7 @@ void splitToItems(std::string polinom, std::map<int, int>& items) {
 
 std::pair<int, int> parseToPair(std::string item) {
     std::string::size_type index;
-    int power = 0;
+    int power = 1;
     int coeff = 1;
 
     index = item.find("x");
@@ -59,11 +63,26 @@ std::pair<int, int> parseToPair(std::string item) {
         }
     } else {
         coeff = std::stoi(item);
+        power = 0;
     }
     std::cout << coeff << " " << power << std::endl;
     return std::make_pair(power, coeff);
 }
 
+void incrementalDerivative(std::map<int, int> &items) {
+    for (auto& kv: items) {
+        kv.second *= kv.first;
+    }
+}
+
 std::string buildString(std::map<int, int>& items){
+    std::string result;
+    for (auto& kv: items) {
+        std::cout << "*" << kv.second << " ^" << kv.first - 1 << std::endl;
+    }
     return (std::string)"";
+}
+
+std::string buildItem(const std::pair<int, int>& item) {
+
 }
