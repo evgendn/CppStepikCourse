@@ -10,11 +10,12 @@ void splitToItems(std::string polinom, std::map<int, int>& items);
 void incrementalDerivative(std::map<int, int>& items);
 std::pair<int, int> parseToPair(std::string item);
 std::string buildString(std::map<int, int>& items);
-std::string buildItem(const std::pair<int, int>& item);
+void buildItem(const std::pair<int, int>& item, std::string& result);
+void addSignBeforeNumber(const std::pair<int, int> &item, std::string& result);
 
 int main()
 {
-    std::string line("-3*x^3 + x - 1");
+    std::string line("100*x-20*x");
     eraseSpaces(line);
     std::cout << "Polinom: " << line << std::endl;
     std::cout << derivative(line) << std::endl;
@@ -37,11 +38,7 @@ void splitToItems(std::string polinom, std::map<int, int>& items) {
     auto end = std::sregex_token_iterator();
     for (iter; iter != end; ++iter) {
         auto tmp = parseToPair(*iter);
-        if (items[tmp.first] == tmp.second) {
-            items[tmp.first] += tmp.second;
-        } else {
-            items[tmp.first] = tmp.second;
-        }
+        items[tmp.first] += tmp.second;
     }
 }
 
@@ -52,20 +49,30 @@ std::pair<int, int> parseToPair(std::string item) {
 
     index = item.find("x");
     if (index != std::string::npos) {
+        int coeffIndex = item.find("*");
+        if (coeffIndex == std::string::npos) {
+            std::string pattern("[\+-]?");
+            std::regex re(pattern);
+            std::smatch match;
+            std::string result("");
+            if (std::regex_search(item, match, re)) {
+                result = match.str(0);
+            }
+            if (result == "-") {
+                coeff = -1;
+            }
+        } else {
+            coeff = std::stoi(item.substr(0, coeffIndex));
+        }
+
         int powerIndex = item.find("^");
         if (powerIndex != std::string::npos) {
             power = std::stoi(item.substr(powerIndex + 1));
-        }
-
-        int coeffIndex = item.find("*");
-        if (coeffIndex != std::string::npos) {
-            coeff = std::stoi(item.substr(0, coeffIndex));
         }
     } else {
         coeff = std::stoi(item);
         power = 0;
     }
-    std::cout << coeff << " " << power << std::endl;
     return std::make_pair(power, coeff);
 }
 
@@ -77,12 +84,33 @@ void incrementalDerivative(std::map<int, int> &items) {
 
 std::string buildString(std::map<int, int>& items){
     std::string result;
-    for (auto& kv: items) {
-        std::cout << "*" << kv.second << " ^" << kv.first - 1 << std::endl;
+    auto riter = items.rbegin();
+    for (riter; riter != items.rend(); ++riter) {
+        buildItem(std::make_pair(riter->first - 1, riter->second), result);
     }
-    return (std::string)"";
+    return result;
 }
 
-std::string buildItem(const std::pair<int, int>& item) {
+void buildItem(const std::pair<int, int>& item, std::string& result) {
+    std::string itemAsString;
+    if (item.first > 0) {
+        addSignBeforeNumber(item, result);
+        result.append(std::to_string(item.second));
+        result.append("*x");
+        if (item.first != 1) {
+            result.append("^");
+            result.append(std::to_string(item.first));
+        }
+    } else if (item.first == 0) {
+        addSignBeforeNumber(item, result);
+        result.append(std::to_string(item.second));
+    }
+}
 
+void addSignBeforeNumber(const std::pair<int, int>& item, std::string& result) {
+    if (result.size()) {
+        if (item.second > 0 ) {
+            result.append("+");
+        }
+    }
 }
