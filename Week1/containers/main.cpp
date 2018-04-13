@@ -9,6 +9,7 @@ std::string derivative(std::string polynomial);
 void splitToItems(std::string polinom, std::map<int, int>& items);
 void incrementalDerivative(std::map<int, int>& items);
 std::pair<int, int> parseToPair(std::string item);
+int coeffIsNegative(std::string item);
 std::string buildString(std::map<int, int>& items);
 void buildItem(const std::pair<int, int>& item, std::string& result);
 void addSignBeforeNumber(const std::pair<int, int> &item, std::string& result);
@@ -17,8 +18,8 @@ int main()
 {
     std::string line("100*x-20*x");
     eraseSpaces(line);
-    std::cout << "Polinom: " << line << std::endl;
-    std::cout << derivative(line) << std::endl;
+    std::cout << "Polynome: " << line << std::endl;
+    std::cout << "Result: " << derivative(line) << std::endl;
 }
 
 void eraseSpaces(std::string& line) {
@@ -32,9 +33,9 @@ std::string derivative(std::string polynomial) {
     return buildString(items);
 }
 
-void splitToItems(std::string polinom, std::map<int, int>& items) {
+void splitToItems(std::string polynome, std::map<int, int>& items) {
     std::regex re("([\+-]?)(([0-9]{0,})(\\*?)x((\\^[0-9]{1,})?)|[0-9]{1,})");
-    auto iter = std::sregex_token_iterator (polinom.begin(), polinom.end(), re);
+    auto iter = std::sregex_token_iterator (polynome.begin(), polynome.end(), re);
     auto end = std::sregex_token_iterator();
     for (iter; iter != end; ++iter) {
         auto tmp = parseToPair(*iter);
@@ -51,14 +52,7 @@ std::pair<int, int> parseToPair(std::string item) {
     if (index != std::string::npos) {
         int coeffIndex = item.find("*");
         if (coeffIndex == std::string::npos) {
-            std::string pattern("[\+-]?");
-            std::regex re(pattern);
-            std::smatch match;
-            std::string result("");
-            if (std::regex_search(item, match, re)) {
-                result = match.str(0);
-            }
-            if (result == "-") {
+            if (coeffIsNegative(item)) {
                 coeff = -1;
             }
         } else {
@@ -74,6 +68,20 @@ std::pair<int, int> parseToPair(std::string item) {
         power = 0;
     }
     return std::make_pair(power, coeff);
+}
+
+int coeffIsNegative(std::string item) {
+    std::string pattern("[\+-]?");
+    std::regex re(pattern);
+    std::smatch match;
+    std::string result("");
+    if (std::regex_search(item, match, re)) {
+        result = match.str(0);
+    }
+    if (result == "-") {
+        return true;
+    }
+    return false;
 }
 
 void incrementalDerivative(std::map<int, int> &items) {
