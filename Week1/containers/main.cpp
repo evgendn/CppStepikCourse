@@ -9,7 +9,7 @@ std::string derivative(std::string polynomial);
 void splitToItems(std::string polinom, std::map<int, int>& items);
 void incrementalDerivative(std::map<int, int>& items);
 std::pair<int, int> parseToPair(std::string item);
-int coeffIsNegative(std::string item);
+bool coeffIsNegative(std::string item);
 std::string buildString(std::map<int, int>& items);
 void buildItem(const std::pair<int, int>& item, std::string& result);
 void addSignBeforeNumber(const std::pair<int, int> &item, std::string& result);
@@ -70,7 +70,7 @@ std::pair<int, int> parseToPair(std::string item) {
     return std::make_pair(power, coeff);
 }
 
-int coeffIsNegative(std::string item) {
+bool coeffIsNegative(std::string item) {
     std::string pattern("[\+-]?");
     std::regex re(pattern);
     std::smatch match;
